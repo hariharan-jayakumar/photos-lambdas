@@ -8,17 +8,23 @@ from requests_aws4auth import AWS4Auth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 
 def get_metadata(bucket, image):
-    client = boto3.client('s3')
-    response = client.head_object(
+    service = boto3.resource('s3')
+    """response = client.head_object(
         Bucket=bucket,
         Key=image,
-    )
-    
+    )"""
+    object = service.Object(bucket, image)
+
+    print(json.dumps(object.metadata))
+    metadata_labels = []
+    if "customlabels" in object.metadata:
+        custom_labels = object.metadata['customlabels'].split(',')
+        metadata_labels.extend(custom_labels)
     # TODO : Parse metadata from user
     # print(response['ResponseMetadata']['HTTPHeaders']['last-modified'])
     # create
     # print("Response: ", response)
-    metadata_labels = []
+    
     # created_timestamp = ''
     # return created_timestamp, metadata_labels
     return metadata_labels
@@ -90,13 +96,17 @@ def lambda_handler(event, context):
     # get bucket and image
     bucket, image = get_required_info(event)
     
-    # debug
     # get required labels
     labels = connect_rekognition(bucket, image)
     metadata_labels = get_metadata(bucket, image)
+    
+    print(labels)
+    print(metadata_labels)
+    
     combined_labels = labels
+    
     for label in metadata_labels:
-        combined_labels.extend(label)
+        combined_labels.append(label)
     
     # write to ES
     send_to_es(bucket, image, combined_labels)
