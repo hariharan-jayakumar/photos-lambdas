@@ -90,6 +90,7 @@ def lambda_handler(event, context):
     # get bucket and image
     bucket, image = get_required_info(event)
     
+    # debug
     # get required labels
     labels = connect_rekognition(bucket, image)
     metadata_labels = get_metadata(bucket, image)
