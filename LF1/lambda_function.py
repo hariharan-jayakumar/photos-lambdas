@@ -1,6 +1,7 @@
 import json
 import boto3
 
+import inflect
 import datetime
 import requests
 from requests_aws4auth import AWS4Auth
@@ -50,9 +51,13 @@ def get_required_info(event):
     print("Image Name:", image_name)
     return bucket_name, image_name
 
+def remove_plural(word):
+    check = inflect.engine().singular_noun(word)
+    return word if check is False else check
+    
 def send_to_es(bucket, image, labels):
     es = Elasticsearch(
-        hosts=[{'host': 'search-photos3-wrhauukzuqwxqu4vuq7bixrdda.us-east-1.es.amazonaws.com', 'port': 443}],
+        hosts=[{'host': 'search-photos-es4ieoq6di4xg3e2xhu5mcbumq.us-east-1.es.amazonaws.com', 'port': 443}],
         http_auth=('hariharanjaya', 'Harirockz1!'),
         use_ssl=True,
         verify_certs=True,
@@ -62,12 +67,12 @@ def send_to_es(bucket, image, labels):
     dataObject = {
         'objectKey' : image,
         'bucket' : bucket,
-        'createdTimestamp' : str(datetime.datetime.now().isoformat()), #TODO : check if sending this is fine
+        'createdTimestamp' : str(datetime.datetime.now().isoformat()),
         'labels' : labels
     }
     
     rep = es.index(
-        index="photos3",
+        index="photos",
         doc_type="_doc",
         id=image + bucket,
         body=dataObject,
@@ -94,6 +99,7 @@ def send_to_es(bucket, image, labels):
     
 def lambda_handler(event, context):
     # get bucket and image
+    print(event)
     bucket, image = get_required_info(event)
     
     # get required labels
@@ -107,6 +113,8 @@ def lambda_handler(event, context):
     
     for label in metadata_labels:
         combined_labels.append(label)
+        
+    combined_labels = [remove_plural(label) for label in combined_labels]
     
     # write to ES
     send_to_es(bucket, image, combined_labels)
@@ -114,4 +122,3 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps('Hello from Lambda!')
     }
-
