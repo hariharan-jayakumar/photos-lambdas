@@ -11,6 +11,9 @@ Resources:
       CodeUri: ./LF1/lambda_function.py
       Description: "Lambda to search photos"
       MemorySize: 128
+      Layers:
+        - "arn:aws:lambda:us-east-1:285630149901:layer:index-photos-test:2"
+        - "arn:aws:lambda:us-east-1:285630149901:layer:inflect-layer:1"
       Timeout: 30
       Role: "arn:aws:iam::285630149901:role/service-role/AWSCodePipelineServiceRole-us-east-1-LambdaPipeline"
       Environment:
@@ -25,6 +28,9 @@ Resources:
       CodeUri: ./LF2/lambda_function.py
       Description: "Lambda to index photos"
       MemorySize: 128
+      Layers:
+        - "arn:aws:lambda:us-east-1:285630149901:layer:index-photos-test:2"
+        - "arn:aws:lambda:us-east-1:285630149901:layer:inflect-layer:1"
       Timeout: 30
       Role: "arn:aws:iam::285630149901:role/service-role/AWSCodePipelineServiceRole-us-east-1-LambdaPipeline"
       Environment:
