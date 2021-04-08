@@ -10,6 +10,7 @@ from elasticsearch import Elasticsearch, RequestsHttpConnection
 
 #adding comment
 #adding another comment
+# adding 3
 
 def get_metadata(bucket, image):
     service = boto3.resource('s3')
