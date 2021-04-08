@@ -8,6 +8,8 @@ from requests_aws4auth import AWS4Auth
 
 from elasticsearch import Elasticsearch, RequestsHttpConnection
 
+#adding comment
+
 def get_metadata(bucket, image):
     service = boto3.resource('s3')
     """response = client.head_object(
